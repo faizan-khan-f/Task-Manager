@@ -1,5 +1,5 @@
 // Base API Endpoint targeting the Express backend
-const API_URL = "http://localhost:5000/api/todos"; //todos in last refer resource it give resource json data from data base
+const API_URL = "/api/todos"; //todos in last refer resource it give resource json data from data base
 // In Express,this aligns with modular routing (app.use('/api/todos', todoRouter)), separating static middleware from data controllers.
 
 // Application State
