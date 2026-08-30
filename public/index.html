@@ -1,0 +1,224 @@
+<!-- host req express check public dir index file is // Serve static frontend assets from the public directory
+app.use(express.static(path.join(__dirname, "../public")));
+then at end script send app.js this runs in the browser and calls fetch("http://localhost:5000/api/todos").
+Express intercepts this /api/todos request, executes the database query via Mongoose, and responds with raw JSON data. app.js receives that JSON and renders the UI. -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Manager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <!-- color bg default(less prom) and  shades of slate -->
+  <body class="bg-slate-900 text-slate-100 min-h-screen antialiased">
+    <main class="max-w-4xl mx-auto px-4 py-10">
+      <!-- max-w-4xl sets max-width: 56rem;stops content from expanding too wide on large screens, keeping line lengths readable.
+mx-auto sets margin-left:auto;margin-right:auto;centers container horizontally within the browser window. -->
+      <!-- Header -->
+      <header class="mb-8 text-center">
+        <h1 class="text-5xl font-extrabold text-white tracking-tight">
+          Task Manager
+        </h1>
+        <!--/*muted text color slate gray for secondary info, mt-1 adds margin-top:0.25rem; */ -->
+        <p class="text-slate-400 mt-1">
+          Enter your tasks, set priorities, and track your progress efficiently.
+        </p>
+      </header>
+
+      <!-- Stats Dashboard -->
+      <!-- grid (display: grid;)sm is breaking point for larger screen it becomes three sep colmns-->
+      <!-- Turns the <section> into a CSS Grid container. Any direct <div> children automatically become grid items. -->
+      <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div
+          class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-xl flex items-center justify-between"
+        >
+          <!-- flex items-center justify-between:Uses Flexbox inside each card to keep the label and number vertically centered and aligned.   -->
+          <div>
+            <p
+              class="text-slate-400 text-xs uppercase tracking-wider font-semibold"
+            >
+              Total Tasks
+            </p>
+            <h3 id="stat-total" class="text-2xl font-bold text-white mt-1">
+              0
+            </h3>
+          </div>
+        </div>
+
+        <div
+          class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-xl flex items-center justify-between"
+        >
+          <div>
+            <p
+              class="text-slate-400 text-xs uppercase tracking-wider font-semibold"
+            >
+              Pending
+            </p>
+            <h3
+              id="stat-pending"
+              class="text-2xl font-bold text-amber-400 mt-1"
+            >
+              0
+            </h3>
+          </div>
+        </div>
+
+        <div
+          class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-xl flex items-center justify-between"
+        >
+          <div>
+            <p
+              class="text-slate-400 text-xs uppercase tracking-wider font-semibold"
+            >
+              Completed
+            </p>
+            <h3
+              id="stat-completed"
+              class="text-2xl font-bold text-emerald-400 mt-1"
+            >
+              0
+            </h3>
+          </div>
+        </div>
+      </section>
+
+      <!-- Todo Form (Create / Edit) -->
+      <form
+        id="todo-form"
+        class="bg-slate-800/90 border border-slate-700 p-6 rounded-2xl shadow-xl mb-8 space-y-4"
+      >
+        <h2 id="form-heading" class="text-lg font-semibold text-slate-100">
+          Create New Task
+        </h2>
+
+        <!-- Hidden Input for Tracking Edit ID -->
+        <input type="hidden" id="todo-id" value="" />
+        <!-- Instead of adding mb-4 or mt-4 to every child element individually, applying space-y-4 to a wrapper <div> -->
+        <div class="space-y-4">
+          <div>
+            <input
+              type="text"
+              id="todo-title"
+              placeholder="What needs to be done?"
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
+            />
+          </div>
+
+          <div>
+            <textarea
+              id="todo-description"
+              placeholder="Add details or description (optional)"
+              rows="2"
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+            ></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1"
+                >Priority</label
+              >
+              <select
+                id="todo-priority"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="low">Low Priority</option>
+                <option value="medium" selected>Medium Priority</option>
+                <option value="high">High Priority</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1"
+                >Due Date</label
+              >
+              <input
+                type="date"
+                id="todo-duedate"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- flex justify-end:Uses Flexbox to align both buttons to the far-right edge of the form card. -->
+        <div class="flex justify-end gap-3 pt-2">
+          <button
+            type="button"
+            id="btn-cancel"
+            class="hidden px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-700 transition"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            id="btn-submit"
+            class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition shadow-md shadow-indigo-600/20"
+          >
+            Add Task
+          </button>
+        </div>
+      </form>
+
+      <!-- Controls: Search & Filters -->
+      <div
+        class="flex flex-col sm:flex-row gap-4 mb-6 justify-between items-center"
+      >
+        <!-- smaller main cols sm or bde main rows -->
+        <!-- flex-col divide them in rows until sm or larger makes it cols equal justify-between item-center align to there space -->
+        <!-- search bar -->
+        <!-- smaller main full space sm or usse bde main 72 -->
+        <div class="w-full sm:w-72">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search tasks..."
+            class="w-full bg-slate-800 border border-slate-700 px-4 py-2 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+        <!-- filter buttons all pending comp -->
+        <!-- smaller or usse bde main auto size nhi to row bnkr dfull small main -->
+        <div id="filter-buttons" class="flex gap-2 w-full sm:w-auto">
+          <button
+            data-filter="all"
+            class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider bg-indigo-600 text-white"
+          >
+            All
+          </button>
+
+          <button
+            data-filter="pending"
+            class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-800 text-slate-400 hover:text-slate-200"
+          >
+            Pending
+          </button>
+
+          <button
+            data-filter="completed"
+            class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-800 text-slate-400 hover:text-slate-200"
+          >
+            Completed
+          </button>
+        </div>
+        <!-- search flex-col,sm:flex-row(search,filter btn(div flex auto and full)) -->
+      </div>
+
+      <!--error banner stays hidden by default and is dynamically displayed by JavaScript whenever an API request fails, 
+       network issues occur, or client-side form validation fails. -->
+      <!-- Error Banner -->
+      <div
+        id="error-banner"
+        class="hidden p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl mb-6 text-sm"
+      ></div>
+
+      <!-- Todo List Items Container -->
+      <div id="todo-list" class="space-y-3"></div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
