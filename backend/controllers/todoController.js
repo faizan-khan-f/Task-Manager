@@ -322,20 +322,221 @@
 //   }
 // };
 //express 5 automatically handles try catch and helps in throwing error
+// import mongoose from "mongoose";
+// import Todo from "../models/todo.model.js";
+
+// /**
+//  * Utility helper to validate MongoDB ObjectId format
+//  */
+// const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+// // ==========================================
+// // 1. GET ALL TODOS
+// // Route: GET /api/todos
+// // ==========================================
+// export const getTodos = async (req, res) => {
+//   const todos = await Todo.find().sort({ createdAt: -1 });
+
+//   res.status(200).json({
+//     success: true,
+//     count: todos.length,
+//     data: todos,
+//   });
+// };
+
+// // ==========================================
+// // 2. GET SINGLE TODO BY ID
+// // Route: GET /api/todos/:id
+// // ==========================================
+// export const getTodoById = async (req, res) => {
+//   const { id } = req.params;
+
+//   if (!isValidObjectId(id)) {
+//     res.status(400);
+//     throw new Error("Invalid Todo ID format"); //errorHandler builds and sends the JSON
+//     // Express 5 automatically intercepts this thrown error and forwards err, req, res, and next directly to your global errorHandler middleware.
+//   }
+
+//   const todo = await Todo.findById(id);
+
+//   if (!todo) {
+//     res.status(404);
+//     throw new Error(`Todo not found with ID: ${id}`);
+//   }
+
+//   res.status(200).json({
+//     success: true,
+//     data: todo,
+//   });
+// };
+
+// // ==========================================
+// // 3. CREATE A NEW TODO
+// // Route: POST /api/todos
+// // ==========================================
+// export const createTodo = async (req, res) => {
+//   const { title, description, dueDate, priority } = req.body;
+
+//   if (!title || title.trim() === "") {
+//     res.status(400);
+//     throw new Error("Title is required");
+//   }
+
+//   if (priority && !["low", "medium", "high"].includes(priority.toLowerCase())) {
+//     res.status(400);
+//     throw new Error("Priority must be low, medium, or high");
+//   }
+
+//   if (dueDate && isNaN(Date.parse(dueDate))) {
+//     res.status(400);
+//     throw new Error("Invalid due date format");
+//   }
+
+//   const newTodo = await Todo.create({
+//     title: title.trim(),
+//     description: description ? description.trim() : "",
+//     dueDate,
+//     priority: priority ? priority.toLowerCase() : "medium",
+//   });
+//   // ❌ THIS CODE NEVER RUNS if Mongoose throws an error validation error etc
+//   res.status(201).json({
+//     success: true,
+//     message: "Todo created successfully",
+//     data: newTodo,
+//   });
+// };
+
+// // ==========================================
+// // 4. UPDATE TODO (FULL EDIT)
+// // Route: PUT /api/todos/:id
+// // ==========================================
+// export const updateTodo = async (req, res) => {
+//   const { id } = req.params;
+//   const { title, description, dueDate, priority, status } = req.body;
+
+//   if (!isValidObjectId(id)) {
+//     res.status(400);
+//     throw new Error("Invalid Todo ID format");
+//   }
+
+//   if (title !== undefined && title.trim() === "") {
+//     res.status(400);
+//     throw new Error("Title cannot be empty");
+//   }
+
+//   if (priority && !["low", "medium", "high"].includes(priority.toLowerCase())) {
+//     res.status(400);
+//     throw new Error("Priority must be low, medium, or high");
+//   }
+
+//   if (status && !["pending", "completed"].includes(status.toLowerCase())) {
+//     res.status(400);
+//     throw new Error("Status must be pending or completed");
+//   }
+
+//   if (dueDate && isNaN(Date.parse(dueDate))) {
+//     res.status(400);
+//     throw new Error("Invalid due date format");
+//   }
+
+//   const updatedTodo = await Todo.findByIdAndUpdate(
+//     id,
+//     { title, description, dueDate, priority, status },
+//     { new: true, runValidators: true },
+//   );
+
+//   if (!updatedTodo) {
+//     res.status(404);
+//     throw new Error(`Todo not found with ID: ${id}`);
+//   }
+
+//   res.status(200).json({
+//     success: true,
+//     message: "Todo updated successfully",
+//     data: updatedTodo,
+//   });
+// };
+
+// // ==========================================
+// // 5. UPDATE TODO STATUS ONLY (PARTIAL EDIT)
+// // Route: PATCH /api/todos/:id/status
+// // ==========================================
+// export const updateTodoStatus = async (req, res) => {
+//   const { id } = req.params;
+//   const { status } = req.body;
+
+//   if (!isValidObjectId(id)) {
+//     res.status(400);
+//     throw new Error("Invalid Todo ID format");
+//   }
+
+//   if (!status || !["pending", "completed"].includes(status.toLowerCase())) {
+//     res.status(400);
+//     throw new Error("Status is required and must be pending or completed");
+//   }
+
+//   const updatedTodo = await Todo.findByIdAndUpdate(
+//     id,
+//     { status: status.toLowerCase() },
+//     { new: true, runValidators: true },
+//   );
+
+//   if (!updatedTodo) {
+//     res.status(404);
+//     throw new Error(`Todo not found with ID: ${id}`);
+//   }
+
+//   res.status(200).json({
+//     success: true,
+//     message: "Todo status updated successfully",
+//     data: updatedTodo,
+//   });
+// };
+
+// // ==========================================
+// // 6. DELETE TODO
+// // Route: DELETE /api/todos/:id
+// // ==========================================
+// export const deleteTodo = async (req, res) => {
+//   const { id } = req.params;
+
+//   if (!isValidObjectId(id)) {
+//     res.status(400);
+//     throw new Error("Invalid Todo ID format");
+//   }
+
+//   const deletedTodo = await Todo.findByIdAndDelete(id);
+
+//   if (!deletedTodo) {
+//     res.status(404);
+//     throw new Error(`Todo not found with ID: ${id}`);
+//   }
+
+//   res.status(200).json({
+//     success: true,
+//     message: "Todo deleted successfully",
+//     data: deletedTodo,
+//   });
+// };
+
 import mongoose from "mongoose";
 import Todo from "../models/todo.model.js";
 
-/**
- * Utility helper to validate MongoDB ObjectId format
- */
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
-// ==========================================
-// 1. GET ALL TODOS
-// Route: GET /api/todos
-// ==========================================
+// Helper to get and validate anonymous ID from headers
+const getAnonId = (req) => {
+  const anonId = req.headers["x-anonymous-id"];
+  if (!anonId) {
+    res.status(400);
+    throw new Error("Missing anonymous user identifier");
+  }
+  return anonId;
+};
+
 export const getTodos = async (req, res) => {
-  const todos = await Todo.find().sort({ createdAt: -1 });
+  const anonymousId = req.headers["x-anonymous-id"];
+  const todos = await Todo.find({ anonymousId }).sort({ createdAt: -1 });
 
   res.status(200).json({
     success: true,
@@ -344,37 +545,27 @@ export const getTodos = async (req, res) => {
   });
 };
 
-// ==========================================
-// 2. GET SINGLE TODO BY ID
-// Route: GET /api/todos/:id
-// ==========================================
 export const getTodoById = async (req, res) => {
   const { id } = req.params;
+  const anonymousId = req.headers["x-anonymous-id"];
 
   if (!isValidObjectId(id)) {
     res.status(400);
-    throw new Error("Invalid Todo ID format"); //errorHandler builds and sends the JSON
-    // Express 5 automatically intercepts this thrown error and forwards err, req, res, and next directly to your global errorHandler middleware.
+    throw new Error("Invalid Todo ID format");
   }
 
-  const todo = await Todo.findById(id);
+  const todo = await Todo.findOne({ _id: id, anonymousId });
 
   if (!todo) {
     res.status(404);
     throw new Error(`Todo not found with ID: ${id}`);
   }
 
-  res.status(200).json({
-    success: true,
-    data: todo,
-  });
+  res.status(200).json({ success: true, data: todo });
 };
 
-// ==========================================
-// 3. CREATE A NEW TODO
-// Route: POST /api/todos
-// ==========================================
 export const createTodo = async (req, res) => {
+  const anonymousId = req.headers["x-anonymous-id"];
   const { title, description, dueDate, priority } = req.body;
 
   if (!title || title.trim() === "") {
@@ -387,18 +578,14 @@ export const createTodo = async (req, res) => {
     throw new Error("Priority must be low, medium, or high");
   }
 
-  if (dueDate && isNaN(Date.parse(dueDate))) {
-    res.status(400);
-    throw new Error("Invalid due date format");
-  }
-
   const newTodo = await Todo.create({
+    anonymousId,
     title: title.trim(),
     description: description ? description.trim() : "",
     dueDate,
     priority: priority ? priority.toLowerCase() : "medium",
   });
-  // ❌ THIS CODE NEVER RUNS if Mongoose throws an error validation error etc
+
   res.status(201).json({
     success: true,
     message: "Todo created successfully",
@@ -406,12 +593,9 @@ export const createTodo = async (req, res) => {
   });
 };
 
-// ==========================================
-// 4. UPDATE TODO (FULL EDIT)
-// Route: PUT /api/todos/:id
-// ==========================================
 export const updateTodo = async (req, res) => {
   const { id } = req.params;
+  const anonymousId = req.headers["x-anonymous-id"];
   const { title, description, dueDate, priority, status } = req.body;
 
   if (!isValidObjectId(id)) {
@@ -419,28 +603,8 @@ export const updateTodo = async (req, res) => {
     throw new Error("Invalid Todo ID format");
   }
 
-  if (title !== undefined && title.trim() === "") {
-    res.status(400);
-    throw new Error("Title cannot be empty");
-  }
-
-  if (priority && !["low", "medium", "high"].includes(priority.toLowerCase())) {
-    res.status(400);
-    throw new Error("Priority must be low, medium, or high");
-  }
-
-  if (status && !["pending", "completed"].includes(status.toLowerCase())) {
-    res.status(400);
-    throw new Error("Status must be pending or completed");
-  }
-
-  if (dueDate && isNaN(Date.parse(dueDate))) {
-    res.status(400);
-    throw new Error("Invalid due date format");
-  }
-
-  const updatedTodo = await Todo.findByIdAndUpdate(
-    id,
+  const updatedTodo = await Todo.findOneAndUpdate(
+    { _id: id, anonymousId },
     { title, description, dueDate, priority, status },
     { new: true, runValidators: true },
   );
@@ -457,12 +621,9 @@ export const updateTodo = async (req, res) => {
   });
 };
 
-// ==========================================
-// 5. UPDATE TODO STATUS ONLY (PARTIAL EDIT)
-// Route: PATCH /api/todos/:id/status
-// ==========================================
 export const updateTodoStatus = async (req, res) => {
   const { id } = req.params;
+  const anonymousId = req.headers["x-anonymous-id"];
   const { status } = req.body;
 
   if (!isValidObjectId(id)) {
@@ -470,13 +631,8 @@ export const updateTodoStatus = async (req, res) => {
     throw new Error("Invalid Todo ID format");
   }
 
-  if (!status || !["pending", "completed"].includes(status.toLowerCase())) {
-    res.status(400);
-    throw new Error("Status is required and must be pending or completed");
-  }
-
-  const updatedTodo = await Todo.findByIdAndUpdate(
-    id,
+  const updatedTodo = await Todo.findOneAndUpdate(
+    { _id: id, anonymousId },
     { status: status.toLowerCase() },
     { new: true, runValidators: true },
   );
@@ -493,19 +649,16 @@ export const updateTodoStatus = async (req, res) => {
   });
 };
 
-// ==========================================
-// 6. DELETE TODO
-// Route: DELETE /api/todos/:id
-// ==========================================
 export const deleteTodo = async (req, res) => {
   const { id } = req.params;
+  const anonymousId = req.headers["x-anonymous-id"];
 
   if (!isValidObjectId(id)) {
     res.status(400);
     throw new Error("Invalid Todo ID format");
   }
 
-  const deletedTodo = await Todo.findByIdAndDelete(id);
+  const deletedTodo = await Todo.findOneAndDelete({ _id: id, anonymousId });
 
   if (!deletedTodo) {
     res.status(404);
